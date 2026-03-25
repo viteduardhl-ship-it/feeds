@@ -1,0 +1,709 @@
+<!-- ============================================================
+     SHOPTET BANNER — carousel — Jaro je tady / Spring Collection
+     Vložení: Shoptet admin → Obsah → HTML bloky
+     POZNÁMKA: Před nasazením přidej do <head> webu:
+     <link rel="preload" as="image" href="https://www.tenis4you.cz/img/banner/spring-2026-slide1.webp" fetchpriority="high">
+     ============================================================ -->
+
+<style>
+  /* ── Google Fonts ───────────────────────────────────────────── */
+  @import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600&display=swap');
+
+  /* ── Reset & tokens ────────────────────────────────────────── */
+  .t4y-carousel-root *,
+  .t4y-carousel-root *::before,
+  .t4y-carousel-root *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  :root {
+    --t4y-red:   #E8272D;
+    --t4y-black: #111111;
+    --t4y-white: #FFFFFF;
+    --t4y-transition: 600ms cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* ── Root wrapper ──────────────────────────────────────────── */
+  .t4y-carousel-root {
+    font-family: 'Barlow', sans-serif;
+    width: 100%;
+    max-width: 1440px;
+    margin: 0 auto;
+    position: relative;
+    overflow: hidden;
+    background: var(--t4y-black);
+    /* Mobile: 4/3 — eliminates CLS */
+    aspect-ratio: 4 / 3;
+  }
+
+  @media (min-width: 768px) {
+    .t4y-carousel-root {
+      aspect-ratio: 16 / 5;
+    }
+  }
+
+  /* ── Slides track ──────────────────────────────────────────── */
+  .t4y-slides-track {
+    display: flex;
+    height: 100%;
+    width: 100%;
+    will-change: transform;
+    transition: transform var(--t4y-transition);
+  }
+
+  /* ── Single slide ──────────────────────────────────────────── */
+  .t4y-slide {
+    flex: 0 0 100%;
+    width: 100%;
+    height: 100%;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Non-active slides hidden for AT */
+  .t4y-slide[aria-hidden="true"] {
+    visibility: hidden;
+    pointer-events: none;
+  }
+
+  /* ── Slide picture / image ─────────────────────────────────── */
+  .t4y-slide picture,
+  .t4y-slide img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+  }
+
+  /* ── Overlay (contrast for text) ──────────────────────────── */
+  .t4y-slide-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      90deg,
+      rgba(17,17,17,0.72) 0%,
+      rgba(17,17,17,0.35) 55%,
+      rgba(17,17,17,0.05) 100%
+    );
+    pointer-events: none;
+  }
+
+  /* Variant: center overlay for full-width text slides */
+  .t4y-slide-overlay--center {
+    background: rgba(17,17,17,0.55);
+  }
+
+  /* ── Slide content ─────────────────────────────────────────── */
+  .t4y-slide-content {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 5% 6%;
+    gap: 12px;
+  }
+
+  .t4y-slide-content--center {
+    align-items: center;
+    text-align: center;
+  }
+
+  /* ── Badge / eyebrow ───────────────────────────────────────── */
+  .t4y-badge {
+    display: inline-block;
+    width: fit-content;
+    background: var(--t4y-red);
+    color: var(--t4y-white);
+    font-family: 'Barlow', sans-serif;
+    font-size: clamp(10px, 1.5vw, 14px);
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border-radius: 2px;
+  }
+
+  /* ── Headline ──────────────────────────────────────────────── */
+  .t4y-headline {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 800;
+    font-size: clamp(28px, 6vw, 72px);
+    line-height: 1.0;
+    color: var(--t4y-white);
+    text-shadow: 0 2px 16px rgba(0,0,0,0.5);
+    text-transform: uppercase;
+    letter-spacing: -0.01em;
+  }
+
+  .t4y-headline span {
+    color: var(--t4y-red);
+  }
+
+  /* ── Subheadline ───────────────────────────────────────────── */
+  .t4y-subheadline {
+    font-family: 'Barlow', sans-serif;
+    font-size: clamp(13px, 2vw, 20px);
+    font-weight: 400;
+    color: rgba(255,255,255,0.88);
+    max-width: 480px;
+    line-height: 1.4;
+    text-shadow: 0 1px 8px rgba(0,0,0,0.45);
+  }
+
+  .t4y-slide-content--center .t4y-subheadline {
+    max-width: 600px;
+  }
+
+  /* ── CTA button ────────────────────────────────────────────── */
+  .t4y-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    width: fit-content;
+    background: var(--t4y-red);
+    color: var(--t4y-white);
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: clamp(14px, 2vw, 20px);
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    text-decoration: none;
+    padding: clamp(9px, 1.4vw, 14px) clamp(18px, 3vw, 36px);
+    border-radius: 3px;
+    transition: background 0.25s ease, transform 0.2s ease, box-shadow 0.25s ease;
+    box-shadow: 0 4px 18px rgba(232,39,45,0.4);
+    margin-top: 4px;
+  }
+
+  .t4y-cta:hover,
+  .t4y-cta:focus-visible {
+    background: #c41f24;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(232,39,45,0.55);
+    outline: none;
+  }
+
+  .t4y-cta:focus-visible {
+    outline: 3px solid var(--t4y-white);
+    outline-offset: 3px;
+  }
+
+  .t4y-cta-arrow {
+    font-size: 1.1em;
+    transition: transform 0.2s ease;
+    line-height: 1;
+  }
+
+  .t4y-cta:hover .t4y-cta-arrow {
+    transform: translateX(4px);
+  }
+
+  /* Secondary / outline CTA */
+  .t4y-cta--outline {
+    background: transparent;
+    border: 2px solid var(--t4y-white);
+    box-shadow: none;
+  }
+
+  .t4y-cta--outline:hover,
+  .t4y-cta--outline:focus-visible {
+    background: var(--t4y-white);
+    color: var(--t4y-black);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(255,255,255,0.2);
+  }
+
+  /* ── Entrance animations ───────────────────────────────────── */
+  @keyframes t4y-fadeUp {
+    from { opacity: 0; transform: translateY(22px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .t4y-slide[data-active="true"] .t4y-badge {
+    animation: t4y-fadeUp 0.45s ease both 0.05s;
+  }
+
+  .t4y-slide[data-active="true"] .t4y-headline {
+    animation: t4y-fadeUp 0.5s ease both 0.12s;
+  }
+
+  .t4y-slide[data-active="true"] .t4y-subheadline {
+    animation: t4y-fadeUp 0.5s ease both 0.22s;
+  }
+
+  .t4y-slide[data-active="true"] .t4y-cta {
+    animation: t4y-fadeUp 0.5s ease both 0.32s;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .t4y-slides-track {
+      transition: none !important;
+    }
+    .t4y-slide[data-active="true"] .t4y-badge,
+    .t4y-slide[data-active="true"] .t4y-headline,
+    .t4y-slide[data-active="true"] .t4y-subheadline,
+    .t4y-slide[data-active="true"] .t4y-cta {
+      animation: none !important;
+    }
+    .t4y-cta,
+    .t4y-cta:hover {
+      transition: none !important;
+      transform: none !important;
+    }
+  }
+
+  /* ── Navigation arrows ─────────────────────────────────────── */
+  .t4y-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 20;
+    background: rgba(17,17,17,0.55);
+    border: 1.5px solid rgba(255,255,255,0.25);
+    color: var(--t4y-white);
+    width: clamp(36px, 4vw, 52px);
+    height: clamp(36px, 4vw, 52px);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+    font-size: clamp(14px, 2vw, 22px);
+    line-height: 1;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .t4y-arrow:hover,
+  .t4y-arrow:focus-visible {
+    background: var(--t4y-red);
+    border-color: var(--t4y-red);
+    outline: none;
+  }
+
+  .t4y-arrow:focus-visible {
+    outline: 3px solid var(--t4y-white);
+    outline-offset: 2px;
+  }
+
+  .t4y-arrow--prev { left: clamp(8px, 2vw, 20px); }
+  .t4y-arrow--next { right: clamp(8px, 2vw, 20px); }
+
+  /* ── Bullets ───────────────────────────────────────────────── */
+  .t4y-bullets {
+    position: absolute;
+    bottom: clamp(10px, 2vw, 20px);
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 20;
+    display: flex;
+    gap: 8px;
+    list-style: none;
+  }
+
+  .t4y-bullet {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.4);
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    transition: background 0.25s ease, transform 0.25s ease;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .t4y-bullet[aria-current="true"] {
+    background: var(--t4y-red);
+    transform: scale(1.35);
+  }
+
+  .t4y-bullet:hover,
+  .t4y-bullet:focus-visible {
+    background: var(--t4y-white);
+    outline: none;
+  }
+
+  .t4y-bullet:focus-visible {
+    outline: 2px solid var(--t4y-white);
+    outline-offset: 3px;
+  }
+
+  /* ── Slide counter (desktop only) ──────────────────────────── */
+  .t4y-counter {
+    display: none;
+    position: absolute;
+    bottom: clamp(10px, 2vw, 22px);
+    right: clamp(12px, 2vw, 24px);
+    z-index: 20;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.65);
+    letter-spacing: 0.08em;
+  }
+
+  @media (min-width: 768px) {
+    .t4y-counter { display: block; }
+  }
+
+  /* ── Promo strip (slide 3 extra element) ───────────────────── */
+  .t4y-discount-badge {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: clamp(60px, 8vw, 90px);
+    height: clamp(60px, 8vw, 90px);
+    border-radius: 50%;
+    background: var(--t4y-red);
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 800;
+    font-size: clamp(18px, 3vw, 30px);
+    color: var(--t4y-white);
+    text-align: center;
+    line-height: 1.1;
+    box-shadow: 0 4px 18px rgba(232,39,45,0.5);
+    flex-shrink: 0;
+  }
+
+  .t4y-cta-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+    margin-top: 4px;
+  }
+</style>
+
+<!-- ── Banner HTML ─────────────────────────────────────────────── -->
+<section
+  class="t4y-carousel-root"
+  aria-label="Tenis4you – aktuální akce a novinky"
+  id="t4y-carousel"
+>
+
+  <!-- Slides track -->
+  <div class="t4y-slides-track" id="t4y-track" role="list">
+
+    <!-- ═══ SLIDE 1 — Jarní kolekce ════════════════════════════ -->
+    <article
+      class="t4y-slide"
+      data-active="true"
+      aria-hidden="false"
+      role="listitem"
+    >
+      <picture>
+        <source
+          srcset="https://www.tenis4you.cz/img/banner/spring-2026-slide1.webp"
+          type="image/webp"
+        >
+        <img
+          src="https://www.tenis4you.cz/img/banner/spring-2026-slide1.jpg"
+          alt="Tenista zasahuje míček na antukovém kurtu – jarní kolekce Tenis4you 2026"
+          width="1440"
+          height="450"
+          loading="eager"
+          fetchpriority="high"
+        >
+      </picture>
+      <div class="t4y-slide-overlay"></div>
+      <div class="t4y-slide-content">
+        <span class="t4y-badge">Novinka 2026</span>
+        <h2 class="t4y-headline">Jaro je tady.<br><span>Hraj naplno.</span></h2>
+        <p class="t4y-subheadline">
+          Nová sezóna, nové vybavení. Objevte čerstvé kolekce raket,<br>
+          obuvi a oblečení pro tenis, padel i squash.
+        </p>
+        <a
+          class="t4y-cta"
+          href="/novinky/"
+          title="Prozkoumat jarní kolekci Tenis4you"
+        >
+          Prozkoumat kolekci
+          <span class="t4y-cta-arrow" aria-hidden="true">→</span>
+        </a>
+      </div>
+    </article>
+
+    <!-- ═══ SLIDE 2 — Padel ═════════════════════════════════════ -->
+    <article
+      class="t4y-slide"
+      data-active="false"
+      aria-hidden="true"
+      role="listitem"
+    >
+      <picture>
+        <source
+          srcset="https://www.tenis4you.cz/img/banner/padel-2026-slide2.webp"
+          type="image/webp"
+        >
+        <img
+          src="https://www.tenis4you.cz/img/banner/padel-2026-slide2.jpg"
+          alt="Hráči padelu na skleněném kurtu – sekce padel na Tenis4you"
+          width="1440"
+          height="450"
+          loading="lazy"
+        >
+      </picture>
+      <div class="t4y-slide-overlay"></div>
+      <div class="t4y-slide-content">
+        <span class="t4y-badge">Padel</span>
+        <h2 class="t4y-headline">Největší výběr<br><span>padel vybavení</span><br>v ČR</h2>
+        <p class="t4y-subheadline">
+          Přes 200 modelů padelových raket, míčků a obuvi
+          od Babolat, Head, Wilson a dalších.
+        </p>
+        <a
+          class="t4y-cta"
+          href="/padel/"
+          title="Přejít do sekce padel na Tenis4you"
+        >
+          Jít na padel
+          <span class="t4y-cta-arrow" aria-hidden="true">→</span>
+        </a>
+      </div>
+    </article>
+
+    <!-- ═══ SLIDE 3 — Výprodej ══════════════════════════════════ -->
+    <article
+      class="t4y-slide"
+      data-active="false"
+      aria-hidden="true"
+      role="listitem"
+    >
+      <picture>
+        <source
+          srcset="https://www.tenis4you.cz/img/banner/sale-2026-slide3.webp"
+          type="image/webp"
+        >
+        <img
+          src="https://www.tenis4you.cz/img/banner/sale-2026-slide3.jpg"
+          alt="Výprodej tenisového vybavení – slevy až 40 % na Tenis4you"
+          width="1440"
+          height="450"
+          loading="lazy"
+        >
+      </picture>
+      <div class="t4y-slide-overlay t4y-slide-overlay--center"></div>
+      <div class="t4y-slide-content t4y-slide-content--center">
+        <div style="display:flex;align-items:center;gap:16px;justify-content:center;">
+          <div class="t4y-discount-badge">až<br>−40%</div>
+          <div>
+            <span class="t4y-badge">Výprodej sezóny</span>
+            <h2 class="t4y-headline" style="margin-top:6px;">
+              Skvělé rakety<br>za <span>výhodné ceny</span>
+            </h2>
+          </div>
+        </div>
+        <p class="t4y-subheadline" style="margin:0 auto;">
+          Vyprodáváme zásoby loňské sezóny — raketky, obuv i oblečení
+          za ceny, které jinde nenajdeš.
+        </p>
+        <div class="t4y-cta-group" style="justify-content:center;">
+          <a
+            class="t4y-cta"
+            href="/vyprodej/"
+            title="Přejít na výprodej vybavení Tenis4you"
+          >
+            Nakoupit se slevou
+            <span class="t4y-cta-arrow" aria-hidden="true">→</span>
+          </a>
+          <a
+            class="t4y-cta t4y-cta--outline"
+            href="/slevy/"
+            title="Zobrazit všechny akční nabídky Tenis4you"
+          >
+            Všechny akce
+          </a>
+        </div>
+      </div>
+    </article>
+
+  </div><!-- /track -->
+
+  <!-- Navigation arrows -->
+  <button
+    class="t4y-arrow t4y-arrow--prev"
+    id="t4y-prev"
+    aria-label="Předchozí slide"
+  >&#8249;</button>
+
+  <button
+    class="t4y-arrow t4y-arrow--next"
+    id="t4y-next"
+    aria-label="Následující slide"
+  >&#8250;</button>
+
+  <!-- Bullets -->
+  <ul class="t4y-bullets" id="t4y-bullets" role="tablist" aria-label="Navigace slidů">
+    <li role="presentation">
+      <button
+        class="t4y-bullet"
+        role="tab"
+        aria-label="Slide 1: Jarní kolekce"
+        aria-current="true"
+        data-index="0"
+      ></button>
+    </li>
+    <li role="presentation">
+      <button
+        class="t4y-bullet"
+        role="tab"
+        aria-label="Slide 2: Padel vybavení"
+        aria-current="false"
+        data-index="1"
+      ></button>
+    </li>
+    <li role="presentation">
+      <button
+        class="t4y-bullet"
+        role="tab"
+        aria-label="Slide 3: Výprodej"
+        aria-current="false"
+        data-index="2"
+      ></button>
+    </li>
+  </ul>
+
+  <!-- Slide counter -->
+  <div class="t4y-counter" id="t4y-counter" aria-live="polite" aria-atomic="true">
+    1 / 3
+  </div>
+
+</section>
+
+<script>
+/* Tenis4you — Carousel JS — IIFE, vanilla, no libraries */
+(function () {
+  'use strict';
+
+  var root    = document.getElementById('t4y-carousel');
+  var track   = document.getElementById('t4y-track');
+  var prevBtn = document.getElementById('t4y-prev');
+  var nextBtn = document.getElementById('t4y-next');
+  var counter = document.getElementById('t4y-counter');
+  var bullets = document.querySelectorAll('#t4y-bullets .t4y-bullet');
+  var slides  = document.querySelectorAll('#t4y-carousel .t4y-slide');
+
+  if (!root || !track || slides.length === 0) return;
+
+  var total      = slides.length;
+  var current    = 0;
+  var autoplayMs = 5000;
+  var timer      = null;
+  var paused     = false;
+
+  /* ── Go to slide ─────────────────────────────────────────── */
+  function goTo(index) {
+    // Wrap index
+    index = ((index % total) + total) % total;
+
+    // Track position via transform (GPU-accelerated)
+    track.style.transform = 'translateX(-' + (index * 100) + '%)';
+
+    // Update slides ARIA + data-active for animations
+    slides.forEach(function (s, i) {
+      var active = i === index;
+      s.setAttribute('aria-hidden', active ? 'false' : 'true');
+      s.setAttribute('data-active', active ? 'true' : 'false');
+      // Re-trigger animation: remove then re-add data-active
+      if (active) {
+        // Force reflow so animation re-runs
+        void s.offsetWidth;
+      }
+    });
+
+    // Update bullets
+    bullets.forEach(function (b, i) {
+      b.setAttribute('aria-current', i === index ? 'true' : 'false');
+    });
+
+    // Update counter
+    if (counter) counter.textContent = (index + 1) + ' / ' + total;
+
+    current = index;
+  }
+
+  /* ── Autoplay ────────────────────────────────────────────── */
+  function startAutoplay() {
+    if (timer) clearInterval(timer);
+    timer = setInterval(function () {
+      if (!paused) goTo(current + 1);
+    }, autoplayMs);
+  }
+
+  function stopAutoplay() {
+    if (timer) { clearInterval(timer); timer = null; }
+  }
+
+  /* ── Pause on hover / focus ──────────────────────────────── */
+  root.addEventListener('mouseenter', function () { paused = true; });
+  root.addEventListener('mouseleave', function () { paused = false; });
+  root.addEventListener('focusin',    function () { paused = true; });
+  root.addEventListener('focusout',   function (e) {
+    if (!root.contains(e.relatedTarget)) paused = false;
+  });
+
+  /* ── Arrow buttons ───────────────────────────────────────── */
+  if (prevBtn) prevBtn.addEventListener('click', function () {
+    goTo(current - 1);
+    stopAutoplay();
+    startAutoplay();
+  });
+
+  if (nextBtn) nextBtn.addEventListener('click', function () {
+    goTo(current + 1);
+    stopAutoplay();
+    startAutoplay();
+  });
+
+  /* ── Bullet clicks ───────────────────────────────────────── */
+  bullets.forEach(function (b) {
+    b.addEventListener('click', function () {
+      var idx = parseInt(b.getAttribute('data-index'), 10);
+      goTo(idx);
+      stopAutoplay();
+      startAutoplay();
+    });
+  });
+
+  /* ── Keyboard navigation ─────────────────────────────────── */
+  root.addEventListener('keydown', function (e) {
+    if (e.key === 'ArrowLeft')  { goTo(current - 1); stopAutoplay(); startAutoplay(); }
+    if (e.key === 'ArrowRight') { goTo(current + 1); stopAutoplay(); startAutoplay(); }
+  });
+
+  /* ── Touch / swipe ───────────────────────────────────────── */
+  var touchStartX = 0;
+  var touchEndX   = 0;
+  var swipeThreshold = 50;
+
+  root.addEventListener('touchstart', function (e) {
+    touchStartX = e.changedTouches[0].screenX;
+  }, { passive: true });
+
+  root.addEventListener('touchend', function (e) {
+    touchEndX = e.changedTouches[0].screenX;
+    var delta = touchStartX - touchEndX;
+    if (Math.abs(delta) > swipeThreshold) {
+      if (delta > 0) goTo(current + 1);
+      else           goTo(current - 1);
+      stopAutoplay();
+      startAutoplay();
+    }
+  }, { passive: true });
+
+  /* ── Respect reduced-motion: disable autoplay ────────────── */
+  var prefersReduced = window.matchMedia &&
+    window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ── Init ─────────────────────────────────────────────────── */
+  goTo(0);
+  if (!prefersReduced) startAutoplay();
+
+})();
+</script>
