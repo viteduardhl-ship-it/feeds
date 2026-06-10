@@ -340,47 +340,52 @@ body {
 .te-price-label {
   border: 1px dashed #bbb;
   display: flex;
-  flex-direction: column;
-  justify-content: center;
-  padding: 4mm 5mm;
+  flex-direction: row;
+  align-items: center;
+  gap: 4mm;
+  justify-content: space-between;
+  padding: 2mm 4mm;
   page-break-inside: avoid;
   position: relative;
   overflow: hidden;
 }
-.te-price-label.sm { width: 50mm; height: 30mm; }
-.te-price-label.md { width: 70mm; height: 40mm; }
+.te-price-label.sm { width: 100mm; height: 20mm; }
+.te-price-label.md { width: 100mm; height: 20mm; }
+.te-price-label-info { flex: 1; min-width: 0; }
 .te-price-label-brand {
-  font-size: 7pt;
+  font-size: 6pt;
   font-weight: 700;
   color: #888;
   text-transform: uppercase;
   letter-spacing: 1px;
-  margin-bottom: 1mm;
 }
 .te-price-label-name {
-  font-size: 9pt;
+  font-size: 8pt;
   font-weight: 700;
   color: #111;
   line-height: 1.2;
-  margin-bottom: 2mm;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.te-price-label-sku {
+  font-size: 6pt;
+  color: #aaa;
+  letter-spacing: .5px;
 }
 .te-price-label-price {
-  font-size: 16pt;
+  font-size: 14pt;
   font-weight: 800;
   color: #e8650a;
   line-height: 1;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
-.te-price-label-price span { font-size: 9pt; font-weight: 500; color: #555; }
-.te-price-label-sku {
-  font-size: 6.5pt;
-  color: #aaa;
-  margin-top: 1.5mm;
-  letter-spacing: .5px;
-}
+.te-price-label-price span { font-size: 8pt; font-weight: 500; color: #555; }
 .te-price-label-bar {
   position: absolute;
-  bottom: 0; left: 0; right: 0;
-  height: 3px;
+  left: 0; top: 0; bottom: 0;
+  width: 3px;
   background: var(--te-orange);
 }
 
@@ -389,64 +394,76 @@ body {
    ============================================================ */
 .te-comp-label {
   border: 1px dashed #bbb;
-  padding: 3mm 4mm;
+  padding: 2mm 3mm 2mm 5mm;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
+  align-items: center;
+  gap: 3mm;
   page-break-inside: avoid;
   position: relative;
   font-family: Arial, sans-serif;
+  overflow: hidden;
 }
-.te-comp-label.s53 { width: 50mm; height: 30mm; }
-.te-comp-label.s46 { width: 40mm; height: 60mm; }
+.te-comp-label.s53 { width: 100mm; height: 20mm; }
+.te-comp-label.s46 { width: 100mm; height: 20mm; }
 
+/* left block: brand + name + sku */
+.te-comp-label-left { flex: 0 0 auto; min-width: 0; max-width: 38mm; }
 .te-comp-label-brand {
-  font-size: 6pt;
+  font-size: 5.5pt;
   font-weight: 700;
   color: #888;
   text-transform: uppercase;
   letter-spacing: .8px;
+  white-space: nowrap;
 }
 .te-comp-label-name {
-  font-size: 8pt;
+  font-size: 7.5pt;
   font-weight: 700;
   color: #111;
-  line-height: 1.2;
-  margin-bottom: 1.5mm;
+  line-height: 1.15;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .te-comp-label-sku {
-  font-size: 5.5pt;
+  font-size: 5pt;
   color: #999;
-  margin-bottom: 2mm;
+  white-space: nowrap;
 }
 .te-comp-label-divider {
-  height: 1px;
+  width: 1px;
+  height: 14mm;
   background: #ddd;
-  margin-bottom: 2mm;
+  flex-shrink: 0;
 }
+/* center block: composition */
 .te-comp-label-composition {
-  font-size: 7pt;
+  font-size: 6.5pt;
   color: #222;
-  line-height: 1.5;
+  line-height: 1.4;
   font-weight: 600;
-  margin-bottom: 1.5mm;
+  flex: 1;
+  min-width: 0;
 }
+/* right block: care */
 .te-comp-label-care {
   font-size: 5.5pt;
   color: #555;
-  line-height: 1.4;
+  line-height: 1.35;
   flex: 1;
+  min-width: 0;
 }
 .te-comp-label-symbols {
   display: flex;
-  gap: 2mm;
-  margin-top: 1mm;
-  font-size: 9pt;
+  gap: 1.5mm;
+  font-size: 8pt;
   flex-wrap: wrap;
 }
 .te-comp-label-bar {
   position: absolute;
-  top: 0; left: 0; right: 0;
-  height: 2.5px;
+  left: 0; top: 0; bottom: 0;
+  width: 2.5px;
   background: var(--te-orange);
 }
 
@@ -607,8 +624,8 @@ body {
         <div class="te-field">
           <label class="te-label">Velikost štítku</label>
           <select class="te-select" id="p-size" onchange="updatePricePreview()">
-            <option value="sm">Malý (5×3 cm)</option>
-            <option value="md">Střední (7×4 cm)</option>
+            <option value="sm">Standardní (10×2 cm)</option>
+            <option value="md">Standardní (10×2 cm)</option>
           </select>
         </div>
       </div>
@@ -719,8 +736,8 @@ body {
         <div class="te-field">
           <label class="te-label">Velikost etikety</label>
           <select class="te-select" id="l-size" onchange="updateLabelPreview()">
-            <option value="s53">5×3 cm (horizontální)</option>
-            <option value="s46">4×6 cm (vertikální)</option>
+            <option value="s53">10×2 cm</option>
+            <option value="s46">10×2 cm</option>
           </select>
         </div>
         <div class="te-field">
@@ -952,12 +969,14 @@ function formatPrice(v) {
 
 function buildPriceLabelHTML(d) {
   const sizeClass = d.size || 'sm';
-  return `<div class="te-price-label ${sizeClass}">
+  return `<div class="te-price-label ${sizeClass}" style="padding-left:6mm">
     <div class="te-price-label-bar"></div>
-    ${d.brand ? `<div class="te-price-label-brand">${esc(d.brand)}</div>` : ''}
-    <div class="te-price-label-name">${esc(d.name) || '&nbsp;'}</div>
-    <div class="te-price-label-price">${formatPrice(d.price)} <span>Kč</span></div>
-    ${d.sku ? `<div class="te-price-label-sku">${esc(d.sku)}</div>` : ''}
+    <div class="te-price-label-info">
+      ${d.brand ? `<div class="te-price-label-brand">${esc(d.brand)}</div>` : ''}
+      <div class="te-price-label-name">${esc(d.name) || '&nbsp;'}</div>
+      ${d.sku ? `<div class="te-price-label-sku">${esc(d.sku)}</div>` : ''}
+    </div>
+    <div class="te-price-label-price">${formatPrice(d.price)}&nbsp;<span>Kč</span></div>
   </div>`;
 }
 
@@ -1159,13 +1178,15 @@ function buildCompLabelHTML(d) {
 
   return `<div class="te-comp-label ${sc}">
     <div class="te-comp-label-bar"></div>
-    ${d.brand ? `<div class="te-comp-label-brand">${esc(d.brand)}</div>` : ''}
-    <div class="te-comp-label-name">${esc(d.name) || '&nbsp;'}</div>
-    ${d.sku ? `<div class="te-comp-label-sku">SKU: ${esc(d.sku)}</div>` : ''}
+    <div class="te-comp-label-left">
+      ${d.brand ? `<div class="te-comp-label-brand">${esc(d.brand)}</div>` : ''}
+      <div class="te-comp-label-name">${esc(d.name) || '&nbsp;'}</div>
+      ${d.sku ? `<div class="te-comp-label-sku">${esc(d.sku)}</div>` : ''}
+    </div>
     <div class="te-comp-label-divider"></div>
-    <div class="te-comp-label-composition">SLOŽENÍ: ${esc(compText) || '–'}</div>
-    <div class="te-comp-label-care">${careLines.map(l => esc(l)).join('<br>')}</div>
-    ${careSyms.length ? `<div class="te-comp-label-symbols">${careSyms.map(s => `<span>${esc(s)}</span>`).join('')}</div>` : ''}
+    <div class="te-comp-label-composition">SLOŽENÍ:<br>${esc(compText) || '–'}</div>
+    ${careLines.length ? `<div class="te-comp-label-divider"></div>
+    <div class="te-comp-label-care">${careLines.map(l => esc(l)).join('<br>')}${careSyms.length ? `<div class="te-comp-label-symbols">${careSyms.map(s => `<span>${esc(s)}</span>`).join('')}</div>` : ''}</div>` : ''}
   </div>`;
 }
 
