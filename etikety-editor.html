@@ -349,8 +349,8 @@ body {
   position: relative;
   overflow: hidden;
 }
-.te-price-label.sm { width: 100mm; height: 20mm; }
-.te-price-label.md { width: 100mm; height: 20mm; }
+.te-price-label.sm { width: 100%; height: 20mm; }
+.te-price-label.md { width: 100%; height: 20mm; }
 .te-price-label-info { flex: 1; min-width: 0; }
 .te-price-label-brand {
   font-size: 6pt;
@@ -404,8 +404,8 @@ body {
   font-family: Arial, sans-serif;
   overflow: hidden;
 }
-.te-comp-label.s53 { width: 100mm; height: 20mm; }
-.te-comp-label.s46 { width: 100mm; height: 20mm; }
+.te-comp-label.s53 { width: 100%; height: 20mm; }
+.te-comp-label.s46 { width: 100%; height: 20mm; }
 
 /* left block: brand + name + sku */
 .te-comp-label-left { flex: 0 0 auto; min-width: 0; max-width: 38mm; }
@@ -602,6 +602,8 @@ body {
   .te-price-label, .te-comp-label {
     border: 1px dashed #aaa !important;
     -webkit-print-color-adjust: exact;
+    width: 100% !important;
+    height: 20mm !important;
   }
 }
 </style>
