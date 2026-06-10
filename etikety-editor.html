@@ -328,8 +328,8 @@ body {
   margin: 0 auto;
   padding: 10mm;
   box-shadow: 0 2px 16px rgba(0,0,0,.12);
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(var(--te-cols, 1), 1fr);
   align-content: flex-start;
   gap: 0;
 }
@@ -635,10 +635,10 @@ body {
           <input class="te-input" id="p-qty" type="number" min="1" max="200" value="1" oninput="updatePricePreview()">
         </div>
         <div class="te-field">
-          <label class="te-label">Štítků na arch</label>
-          <select class="te-select" id="p-perpage" onchange="updatePricePreview()">
-            <option value="4">4 na stránku</option>
-            <option value="8" selected>8 na stránku</option>
+          <label class="te-label">Sloupce na arch</label>
+          <select class="te-select" id="p-cols" onchange="updatePricePreview()">
+            <option value="1">1 sloupec (~13/arch)</option>
+            <option value="2" selected>2 sloupce (~26/arch)</option>
           </select>
         </div>
       </div>
@@ -734,15 +734,15 @@ body {
       <div class="te-section-sep">Nastavení tisku</div>
       <div class="te-row">
         <div class="te-field">
-          <label class="te-label">Velikost etikety</label>
-          <select class="te-select" id="l-size" onchange="updateLabelPreview()">
-            <option value="s53">10×2 cm</option>
-            <option value="s46">10×2 cm</option>
+          <label class="te-label">Sloupce na arch</label>
+          <select class="te-select" id="l-cols" onchange="updateLabelPreview()">
+            <option value="1">1 sloupec (~13/arch)</option>
+            <option value="2" selected>2 sloupce (~26/arch)</option>
           </select>
         </div>
         <div class="te-field">
           <label class="te-label">Počet kusů</label>
-          <input class="te-input" id="l-qty" type="number" min="1" max="200" value="1" oninput="updateLabelPreview()">
+          <input class="te-input" id="l-qty" type="number" min="1" max="500" value="1" oninput="updateLabelPreview()">
         </div>
       </div>
 
@@ -958,7 +958,7 @@ function getPriceData() {
     brand:  document.getElementById('p-brand').value,
     size:   document.getElementById('p-size').value,
     qty:    parseInt(document.getElementById('p-qty').value) || 1,
-    perpage:parseInt(document.getElementById('p-perpage').value) || 8,
+    cols:   parseInt(document.getElementById('p-cols').value) || 2,
   };
 }
 
@@ -983,7 +983,9 @@ function buildPriceLabelHTML(d) {
 function updatePricePreview() {
   const d = getPriceData();
   const sheet = document.getElementById('price-sheet');
-  const count = Math.min(d.qty, d.perpage);
+  sheet.style.setProperty('--te-cols', d.cols);
+  const perPage = d.cols * 13;
+  const count = Math.min(d.qty, perPage);
   sheet.innerHTML = Array(count).fill(buildPriceLabelHTML(d)).join('');
 }
 
@@ -992,7 +994,7 @@ function printPrice() {
   if (!d.name) { toast('Zadejte název produktu', 'error'); return; }
   if (!d.price) { toast('Zadejte cenu', 'error'); return; }
   const labels = Array(d.qty).fill(buildPriceLabelHTML(d)).join('');
-  printSheet(labels, 'Cenové štítky – ' + d.name);
+  printSheet(labels, 'Cenové štítky – ' + d.name, d.cols);
 }
 
 function clearPriceForm() {
@@ -1158,6 +1160,7 @@ function getLabelData() {
     care:    { ...careSelections },
     instructions: document.getElementById('l-instructions').value.trim(),
     size:    document.getElementById('l-size').value,
+    cols:    parseInt(document.getElementById('l-cols').value) || 2,
     qty:     parseInt(document.getElementById('l-qty').value) || 1,
   };
 }
@@ -1213,7 +1216,9 @@ function getCareSymbolsFromData(care) {
 function updateLabelPreview() {
   const d = getLabelData();
   const sheet = document.getElementById('label-sheet');
-  const count = Math.min(d.qty, 40);
+  sheet.style.setProperty('--te-cols', d.cols);
+  const perPage = d.cols * 13;
+  const count = Math.min(d.qty, perPage);
   sheet.innerHTML = Array(count).fill(buildCompLabelHTML(d)).join('');
 }
 
@@ -1224,7 +1229,7 @@ function printLabel() {
   const total = Math.round(getFiberSum() * 10);
   if (total !== 1000) { toast(`Součet vláken musí být 100 % (nyní ${getFiberSum().toFixed(1)} %)`, 'error'); return; }
   const labels = Array(d.qty).fill(buildCompLabelHTML(d)).join('');
-  printSheet(labels, 'Etikety složení – ' + d.name);
+  printSheet(labels, 'Etikety složení – ' + d.name, d.cols);
 }
 
 function clearLabelForm() {
@@ -1243,14 +1248,14 @@ function clearLabelForm() {
 /* ============================================================
    PRINT ENGINE
    ============================================================ */
-function printSheet(labelsHTML, title) {
+function printSheet(labelsHTML, title, cols = 1) {
   const frame = document.getElementById('print-frame');
   const style = document.querySelector('style').textContent;
   frame.innerHTML = `
     <html><head><meta charset="UTF-8"><title>${esc(title)}</title>
     <style>${style}</style></head>
     <body>
-      <div class="te-print-sheet" style="box-shadow:none;margin:0;padding:10mm">
+      <div class="te-print-sheet" style="box-shadow:none;margin:0;padding:10mm;--te-cols:${cols}">
         ${labelsHTML}
       </div>
     </body></html>
