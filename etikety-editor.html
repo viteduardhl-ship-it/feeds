@@ -408,7 +408,7 @@ body {
 .te-comp-label.s46 { width: 100%; height: 20mm; }
 
 /* left block: brand + name + sku */
-.te-comp-label-left { flex: 0 0 auto; min-width: 0; max-width: 38mm; }
+.te-comp-label-left { flex: 0 0 28%; min-width: 0; overflow: hidden; }
 .te-comp-label-brand {
   font-size: 5.5pt;
   font-weight: 700;
@@ -433,7 +433,7 @@ body {
 }
 .te-comp-label-divider {
   width: 1px;
-  height: 14mm;
+  align-self: stretch;
   background: #ddd;
   flex-shrink: 0;
 }
@@ -443,16 +443,18 @@ body {
   color: #222;
   line-height: 1.4;
   font-weight: 600;
-  flex: 1;
+  flex: 1 1 0;
   min-width: 0;
+  overflow: hidden;
 }
 /* right block: care */
 .te-comp-label-care {
   font-size: 5.5pt;
   color: #555;
   line-height: 1.35;
-  flex: 1;
+  flex: 1 1 0;
   min-width: 0;
+  overflow: hidden;
 }
 .te-comp-label-symbols {
   display: flex;
@@ -1249,7 +1251,7 @@ function getLabelData() {
 }
 
 function compositionText(fibers) {
-  return fibers
+  return [...fibers]
     .sort((a, b) => b.pct - a.pct)
     .map(f => `${f.pct}% ${f.name}`)
     .join(', ');
