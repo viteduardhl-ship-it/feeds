@@ -505,6 +505,55 @@ body {
 .te-tab.active { color: var(--te-orange); border-bottom-color: var(--te-orange); }
 
 /* ============================================================
+   PRINT QUEUE
+   ============================================================ */
+.te-queue-list { display: flex; flex-direction: column; gap: 8px; }
+.te-queue-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border: 1.5px solid var(--te-gray2);
+  border-radius: var(--te-radius);
+  background: var(--te-white);
+}
+.te-queue-item-info { flex: 1; min-width: 0; }
+.te-queue-item-name { font-weight: 600; font-size: .9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.te-queue-item-meta { font-size: .78rem; color: var(--te-gray3); }
+.te-queue-badge {
+  font-size: .75rem;
+  font-weight: 700;
+  background: var(--te-dark);
+  color: white;
+  border-radius: 20px;
+  padding: 2px 10px;
+  white-space: nowrap;
+}
+.te-queue-total {
+  font-size: .88rem;
+  font-weight: 600;
+  color: var(--te-gray4);
+  padding: 10px 0 4px;
+  border-top: 1px solid var(--te-gray2);
+  margin-top: 8px;
+}
+#nav-queue-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--te-orange);
+  color: white;
+  border-radius: 20px;
+  font-size: .7rem;
+  font-weight: 700;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  margin-left: 4px;
+  display: none;
+}
+
+/* ============================================================
    TOAST NOTIFICATIONS
    ============================================================ */
 .te-toasts {
@@ -569,6 +618,9 @@ body {
     </button>
     <button class="te-nav-btn" onclick="switchModule('label')" id="nav-label">
       🧵 Etikety složení
+    </button>
+    <button class="te-nav-btn" onclick="switchModule('queue')" id="nav-queue">
+      🖨️ Tisková fronta <span id="nav-queue-badge">0</span>
     </button>
     <button class="te-nav-btn" onclick="switchModule('saved')" id="nav-saved">
       📦 Uložené produkty
@@ -648,10 +700,10 @@ body {
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
           Tisk
         </button>
-        <button class="te-btn te-btn-outline" onclick="saveProduct('price')">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
-          Uložit
+        <button class="te-btn te-btn-outline" onclick="addPriceToQueue()" style="border-color:var(--te-orange);color:var(--te-orange)">
+          + Do fronty
         </button>
+        <button class="te-btn te-btn-outline" onclick="saveProduct('price')">Uložit</button>
         <button class="te-btn te-btn-outline" onclick="clearPriceForm()">Vymazat</button>
       </div>
     </div>
@@ -751,10 +803,10 @@ body {
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
           Tisk
         </button>
-        <button class="te-btn te-btn-outline" onclick="saveProduct('label')">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
-          Uložit
+        <button class="te-btn te-btn-outline" onclick="addLabelToQueue()" style="border-color:var(--te-orange);color:var(--te-orange)">
+          + Do fronty
         </button>
+        <button class="te-btn te-btn-outline" onclick="saveProduct('label')">Uložit</button>
         <button class="te-btn te-btn-outline" onclick="clearLabelForm()">Vymazat</button>
       </div>
     </div>
@@ -772,6 +824,34 @@ body {
         </button>
       </div>
       <div id="label-sheet" class="te-print-sheet"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     MODULE: TISKOVÁ FRONTA
+     ============================================================ -->
+<div id="mod-queue" class="te-module">
+  <div class="te-main" style="flex-direction:column">
+    <div class="te-panel" style="max-width:900px;width:100%">
+      <div class="te-panel-title">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+        Tisková fronta
+        <div style="margin-left:auto;display:flex;gap:8px;align-items:center">
+          <select class="te-select" id="q-cols" style="width:auto;padding:6px 10px;font-size:.85rem">
+            <option value="1">1 sloupec</option>
+            <option value="2" selected>2 sloupce</option>
+          </select>
+          <button class="te-btn te-btn-primary" onclick="printQueue_fn()">
+            🖨️ Tisknout vše
+          </button>
+          <button class="te-btn te-btn-danger te-btn-sm" onclick="clearQueue()">
+            🗑️ Vyprázdnit
+          </button>
+        </div>
+      </div>
+      <div id="queue-list" class="te-queue-list"></div>
+      <div id="queue-total" class="te-queue-total" style="display:none"></div>
     </div>
   </div>
 </div>
@@ -938,13 +1018,14 @@ document.addEventListener('DOMContentLoaded', () => {
    MODULE SWITCHING
    ============================================================ */
 function switchModule(mod) {
-  ['price','label','saved'].forEach(m => {
+  ['price','label','queue','saved'].forEach(m => {
     document.getElementById('mod-'+m).classList.remove('active');
     document.getElementById('nav-'+m).classList.remove('active');
   });
   document.getElementById('mod-'+mod).classList.add('active');
   document.getElementById('nav-'+mod).classList.add('active');
   if (mod === 'saved') renderSavedList();
+  if (mod === 'queue') renderQueueList();
 }
 
 /* ============================================================
@@ -1404,6 +1485,113 @@ function renderSavedList() {
       </div>
     </div>
   `).join('');
+}
+
+/* ============================================================
+   PRINT QUEUE
+   ============================================================ */
+let printQueue = [];
+
+function addPriceToQueue() {
+  const d = getPriceData();
+  if (!d.name) { toast('Zadejte název produktu', 'error'); return; }
+  if (!d.price) { toast('Zadejte cenu', 'error'); return; }
+  printQueue.push({ id: uid(), type: 'price', ...d });
+  updateQueueBadge();
+  renderQueueList();
+  toast(`„${d.name}" přidáno do fronty (${d.qty} ks)`, 'success');
+}
+
+function addLabelToQueue() {
+  const d = getLabelData();
+  if (!d.name) { toast('Zadejte název výrobku', 'error'); return; }
+  if (d.fibers.length === 0) { toast('Přidejte alespoň jedno vlákno', 'error'); return; }
+  const total = Math.round(getFiberSum() * 10);
+  if (total !== 1000) { toast(`Součet vláken musí být 100 % (nyní ${getFiberSum().toFixed(1)} %)`, 'error'); return; }
+  printQueue.push({ id: uid(), type: 'label', ...d });
+  updateQueueBadge();
+  renderQueueList();
+  toast(`„${d.name}" přidáno do fronty (${d.qty} ks)`, 'success');
+}
+
+function removeFromQueue(id) {
+  printQueue = printQueue.filter(i => i.id !== id);
+  updateQueueBadge();
+  renderQueueList();
+}
+
+function updateQueueQty(id, val) {
+  const item = printQueue.find(i => i.id === id);
+  if (item) { item.qty = Math.max(1, parseInt(val) || 1); renderQueueList(); }
+}
+
+function clearQueue() {
+  if (printQueue.length === 0) return;
+  if (!confirm('Vyprázdnit tiskovou frontu?')) return;
+  printQueue = [];
+  updateQueueBadge();
+  renderQueueList();
+}
+
+function updateQueueBadge() {
+  const badge = document.getElementById('nav-queue-badge');
+  const total = printQueue.reduce((s, i) => s + i.qty, 0);
+  badge.textContent = printQueue.length;
+  badge.style.display = printQueue.length ? 'inline-flex' : 'none';
+}
+
+function renderQueueList() {
+  const container = document.getElementById('queue-list');
+  const totalEl   = document.getElementById('queue-total');
+  if (printQueue.length === 0) {
+    container.innerHTML = `<div class="te-empty-state">
+      <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+      <br>Fronta je prázdná – přidejte štítky tlačítkem <strong>+ Do fronty</strong>
+    </div>`;
+    totalEl.style.display = 'none';
+    return;
+  }
+  const totalQty = printQueue.reduce((s, i) => s + i.qty, 0);
+  container.innerHTML = printQueue.map((item, idx) => `
+    <div class="te-queue-item">
+      <div style="font-size:1.1rem;flex-shrink:0">${item.type === 'price' ? '🏷️' : '🧵'}</div>
+      <div class="te-queue-item-info">
+        <div class="te-queue-item-name">${esc(item.name)}</div>
+        <div class="te-queue-item-meta">
+          ${item.brand ? esc(item.brand) + ' · ' : ''}
+          ${item.sku ? 'SKU: ' + esc(item.sku) + ' · ' : ''}
+          ${item.type === 'label' && item.fibers ? compositionText(item.fibers) : ''}
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:6px;flex-shrink:0">
+        <label style="font-size:.78rem;color:var(--te-gray3)">Ks:</label>
+        <input type="number" min="1" max="500" value="${item.qty}"
+          style="width:60px;padding:4px 8px;border:1px solid var(--te-gray2);border-radius:4px;font-size:.85rem"
+          onchange="updateQueueQty('${item.id}',this.value)">
+      </div>
+      <span class="te-queue-badge">${item.qty} ks</span>
+      <button class="te-btn-icon danger" onclick="removeFromQueue('${item.id}')" title="Odebrat z fronty">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+  `).join('');
+  totalEl.style.display = 'block';
+  totalEl.textContent = `Celkem: ${printQueue.length} druhů · ${totalQty} ks etiket`;
+}
+
+function printQueue_fn() {
+  if (printQueue.length === 0) { toast('Fronta je prázdná', 'error'); return; }
+  const cols = parseInt(document.getElementById('q-cols').value) || 2;
+  let allLabels = '';
+  printQueue.forEach(item => {
+    if (item.type === 'price') {
+      allLabels += Array(item.qty).fill(buildPriceLabelHTML(item)).join('');
+    } else {
+      allLabels += Array(item.qty).fill(buildCompLabelHTML(item)).join('');
+    }
+  });
+  const totalQty = printQueue.reduce((s, i) => s + i.qty, 0);
+  printSheet(allLabels, `Tisková fronta – ${totalQty} ks`, cols);
 }
 
 /* ============================================================
