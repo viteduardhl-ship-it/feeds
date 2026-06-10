@@ -323,15 +323,16 @@ body {
 
 .te-print-sheet {
   background: white;
-  width: 210mm;
-  min-height: 297mm;
+  width: 100%;
+  min-height: 200px;
   margin: 0 auto;
-  padding: 10mm;
+  padding: 12px;
   box-shadow: 0 2px 16px rgba(0,0,0,.12);
   display: grid;
   grid-template-columns: repeat(var(--te-cols, 1), 1fr);
-  align-content: flex-start;
+  align-content: start;
   gap: 0;
+  box-sizing: border-box;
 }
 
 /* ============================================================
@@ -611,10 +612,11 @@ body {
   .te-main { padding: 0; gap: 0; }
   .te-panel-right { box-shadow: none; border-radius: 0; padding: 0; }
   .te-print-sheet {
-    box-shadow: none;
-    width: 210mm;
-    margin: 0;
-    padding: 10mm;
+    box-shadow: none !important;
+    width: 210mm !important;
+    min-height: 297mm !important;
+    margin: 0 !important;
+    padding: 10mm !important;
   }
   .te-price-label, .te-comp-label {
     border: 1px dashed #aaa !important;
