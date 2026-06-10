@@ -1,0 +1,1445 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Editor etiket – Tenis4you / TENIS TEAM s.r.o.</title>
+<style>
+/* ============================================================
+   RESET & BASE
+   ============================================================ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --te-dark:    #1a1a2e;
+  --te-orange:  #e8650a;
+  --te-orange2: #ff7a1f;
+  --te-white:   #ffffff;
+  --te-gray1:   #f4f4f7;
+  --te-gray2:   #e0e0e8;
+  --te-gray3:   #9090a8;
+  --te-gray4:   #4a4a68;
+  --te-green:   #22a86e;
+  --te-red:     #d93025;
+  --te-radius:  6px;
+  --te-shadow:  0 2px 12px rgba(26,26,46,.10);
+}
+body {
+  font-family: 'Segoe UI', Arial, sans-serif;
+  background: var(--te-gray1);
+  color: var(--te-dark);
+  min-height: 100vh;
+}
+
+/* ============================================================
+   LAYOUT
+   ============================================================ */
+.te-header {
+  background: var(--te-dark);
+  color: var(--te-white);
+  padding: 0 32px;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  height: 56px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 8px rgba(0,0,0,.3);
+}
+.te-header-logo {
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: .5px;
+  color: var(--te-orange);
+  white-space: nowrap;
+}
+.te-header-sub {
+  font-size: .78rem;
+  color: var(--te-gray3);
+  border-left: 1px solid var(--te-gray4);
+  padding-left: 16px;
+}
+.te-nav {
+  display: flex;
+  gap: 4px;
+  margin-left: auto;
+}
+.te-nav-btn {
+  background: transparent;
+  color: var(--te-gray3);
+  border: none;
+  padding: 8px 18px;
+  border-radius: var(--te-radius);
+  cursor: pointer;
+  font-size: .9rem;
+  font-weight: 500;
+  transition: background .15s, color .15s;
+}
+.te-nav-btn:hover { background: rgba(255,255,255,.08); color: var(--te-white); }
+.te-nav-btn.active { background: var(--te-orange); color: var(--te-white); }
+
+.te-main {
+  display: flex;
+  gap: 24px;
+  padding: 24px 32px;
+  max-width: 1600px;
+  margin: 0 auto;
+}
+.te-panel {
+  background: var(--te-white);
+  border-radius: 10px;
+  box-shadow: var(--te-shadow);
+  padding: 24px;
+}
+.te-panel-left  { flex: 0 0 420px; min-width: 0; }
+.te-panel-right { flex: 1; min-width: 0; }
+.te-panel-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--te-dark);
+  margin-bottom: 20px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid var(--te-gray2);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.te-panel-title svg { color: var(--te-orange); }
+
+/* ============================================================
+   MODULE VIEWS
+   ============================================================ */
+.te-module { display: none; }
+.te-module.active { display: flex; flex-direction: column; }
+.te-module > .te-main { flex: 1; }
+
+/* ============================================================
+   FORM
+   ============================================================ */
+.te-field { margin-bottom: 14px; }
+.te-label {
+  display: block;
+  font-size: .8rem;
+  font-weight: 600;
+  color: var(--te-gray4);
+  margin-bottom: 5px;
+  text-transform: uppercase;
+  letter-spacing: .4px;
+}
+.te-label .te-required { color: var(--te-orange); margin-left: 2px; }
+.te-input, .te-select, .te-textarea {
+  width: 100%;
+  padding: 9px 12px;
+  border: 1px solid var(--te-gray2);
+  border-radius: var(--te-radius);
+  font-size: .9rem;
+  color: var(--te-dark);
+  background: var(--te-white);
+  transition: border-color .15s, box-shadow .15s;
+  outline: none;
+  font-family: inherit;
+}
+.te-input:focus, .te-select:focus, .te-textarea:focus {
+  border-color: var(--te-orange);
+  box-shadow: 0 0 0 3px rgba(232,101,10,.12);
+}
+.te-input.error, .te-select.error { border-color: var(--te-red); }
+.te-textarea { resize: vertical; min-height: 72px; }
+.te-row { display: flex; gap: 12px; }
+.te-row .te-field { flex: 1; }
+
+.te-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 18px;
+  border: none;
+  border-radius: var(--te-radius);
+  cursor: pointer;
+  font-size: .88rem;
+  font-weight: 600;
+  transition: background .15s, transform .08s;
+  outline: none;
+  font-family: inherit;
+}
+.te-btn:active { transform: scale(.97); }
+.te-btn-primary { background: var(--te-orange); color: var(--te-white); }
+.te-btn-primary:hover { background: var(--te-orange2); }
+.te-btn-outline {
+  background: transparent;
+  color: var(--te-dark);
+  border: 1.5px solid var(--te-gray2);
+}
+.te-btn-outline:hover { border-color: var(--te-orange); color: var(--te-orange); }
+.te-btn-danger { background: var(--te-red); color: var(--te-white); }
+.te-btn-danger:hover { background: #c0271d; }
+.te-btn-sm { padding: 6px 12px; font-size: .82rem; }
+.te-btn-icon {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 4px 6px;
+  border-radius: 4px;
+  color: var(--te-gray3);
+  transition: color .15s, background .15s;
+  font-size: .85rem;
+}
+.te-btn-icon:hover { color: var(--te-orange); background: var(--te-gray1); }
+.te-btn-icon.danger:hover { color: var(--te-red); }
+
+.te-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 20px; }
+.te-error-msg { font-size: .78rem; color: var(--te-red); margin-top: 4px; }
+.te-hint { font-size: .78rem; color: var(--te-gray3); margin-top: 4px; }
+
+/* ============================================================
+   FIBER LIST (Modul B)
+   ============================================================ */
+.te-fiber-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 8px; }
+.te-fiber-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--te-gray1);
+  border-radius: var(--te-radius);
+  padding: 8px 10px;
+}
+.te-fiber-row select { flex: 1; }
+.te-fiber-row input[type=number] { width: 80px; flex: 0 0 80px; }
+.te-fiber-pct-lbl { font-size: .8rem; color: var(--te-gray3); white-space: nowrap; }
+.te-fiber-sum {
+  font-size: .82rem;
+  font-weight: 600;
+  padding: 6px 10px;
+  border-radius: var(--te-radius);
+  text-align: right;
+}
+.te-fiber-sum.ok { background: #e6f9f0; color: var(--te-green); }
+.te-fiber-sum.err { background: #fdecea; color: var(--te-red); }
+
+/* ============================================================
+   CARE SYMBOLS
+   ============================================================ */
+.te-care-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+.te-care-item {
+  border: 1.5px solid var(--te-gray2);
+  border-radius: var(--te-radius);
+  padding: 10px;
+  cursor: pointer;
+  transition: border-color .15s, background .15s;
+}
+.te-care-item.selected {
+  border-color: var(--te-orange);
+  background: rgba(232,101,10,.06);
+}
+.te-care-item-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+.te-care-item-title { font-size: .82rem; font-weight: 600; }
+.te-care-toggle {
+  width: 36px; height: 20px;
+  background: var(--te-gray2);
+  border-radius: 10px;
+  position: relative;
+  transition: background .15s;
+  flex-shrink: 0;
+}
+.te-care-toggle::after {
+  content: '';
+  position: absolute;
+  width: 16px; height: 16px;
+  border-radius: 50%;
+  background: white;
+  top: 2px; left: 2px;
+  transition: left .15s;
+  box-shadow: 0 1px 3px rgba(0,0,0,.2);
+}
+.te-care-item.selected .te-care-toggle { background: var(--te-orange); }
+.te-care-item.selected .te-care-toggle::after { left: 18px; }
+.te-care-symbol { font-size: 1.4rem; line-height: 1; }
+.te-care-select { width: 100%; margin-top: 6px; }
+
+/* ============================================================
+   PRODUCT LIST (localStorage)
+   ============================================================ */
+.te-product-list { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; }
+.te-product-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border: 1.5px solid var(--te-gray2);
+  border-radius: var(--te-radius);
+  background: var(--te-white);
+  transition: border-color .15s;
+}
+.te-product-item:hover { border-color: var(--te-orange); }
+.te-product-info { flex: 1; min-width: 0; }
+.te-product-name { font-weight: 600; font-size: .9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.te-product-meta { font-size: .78rem; color: var(--te-gray3); }
+.te-product-type {
+  font-size: .72rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 20px;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  flex-shrink: 0;
+}
+.te-product-type.price { background: #fff3e0; color: var(--te-orange); }
+.te-product-type.label { background: #e3f2fd; color: #1565c0; }
+.te-product-actions { display: flex; gap: 4px; }
+.te-empty-state {
+  text-align: center;
+  padding: 32px;
+  color: var(--te-gray3);
+  font-size: .88rem;
+}
+.te-empty-state svg { margin-bottom: 10px; opacity: .4; }
+
+/* ============================================================
+   PRINT PREVIEW
+   ============================================================ */
+.te-preview-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: var(--te-gray1);
+  border-radius: var(--te-radius);
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+.te-preview-toolbar label { font-size: .82rem; font-weight: 600; color: var(--te-gray4); }
+.te-preview-toolbar select { padding: 6px 10px; font-size: .85rem; border: 1px solid var(--te-gray2); border-radius: var(--te-radius); }
+.te-preview-toolbar .te-btn { margin-left: auto; }
+
+.te-print-sheet {
+  background: white;
+  width: 210mm;
+  min-height: 297mm;
+  margin: 0 auto;
+  padding: 10mm;
+  box-shadow: 0 2px 16px rgba(0,0,0,.12);
+  display: flex;
+  flex-wrap: wrap;
+  align-content: flex-start;
+  gap: 0;
+}
+
+/* ============================================================
+   PRICE LABEL
+   ============================================================ */
+.te-price-label {
+  border: 1px dashed #bbb;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 4mm 5mm;
+  page-break-inside: avoid;
+  position: relative;
+  overflow: hidden;
+}
+.te-price-label.sm { width: 50mm; height: 30mm; }
+.te-price-label.md { width: 70mm; height: 40mm; }
+.te-price-label-brand {
+  font-size: 7pt;
+  font-weight: 700;
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 1mm;
+}
+.te-price-label-name {
+  font-size: 9pt;
+  font-weight: 700;
+  color: #111;
+  line-height: 1.2;
+  margin-bottom: 2mm;
+}
+.te-price-label-price {
+  font-size: 16pt;
+  font-weight: 800;
+  color: #e8650a;
+  line-height: 1;
+}
+.te-price-label-price span { font-size: 9pt; font-weight: 500; color: #555; }
+.te-price-label-sku {
+  font-size: 6.5pt;
+  color: #aaa;
+  margin-top: 1.5mm;
+  letter-spacing: .5px;
+}
+.te-price-label-bar {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 3px;
+  background: var(--te-orange);
+}
+
+/* ============================================================
+   COMPOSITION LABEL (5×3 cm and 4×6 cm)
+   ============================================================ */
+.te-comp-label {
+  border: 1px dashed #bbb;
+  padding: 3mm 4mm;
+  display: flex;
+  flex-direction: column;
+  page-break-inside: avoid;
+  position: relative;
+  font-family: Arial, sans-serif;
+}
+.te-comp-label.s53 { width: 50mm; height: 30mm; }
+.te-comp-label.s46 { width: 40mm; height: 60mm; }
+
+.te-comp-label-brand {
+  font-size: 6pt;
+  font-weight: 700;
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: .8px;
+}
+.te-comp-label-name {
+  font-size: 8pt;
+  font-weight: 700;
+  color: #111;
+  line-height: 1.2;
+  margin-bottom: 1.5mm;
+}
+.te-comp-label-sku {
+  font-size: 5.5pt;
+  color: #999;
+  margin-bottom: 2mm;
+}
+.te-comp-label-divider {
+  height: 1px;
+  background: #ddd;
+  margin-bottom: 2mm;
+}
+.te-comp-label-composition {
+  font-size: 7pt;
+  color: #222;
+  line-height: 1.5;
+  font-weight: 600;
+  margin-bottom: 1.5mm;
+}
+.te-comp-label-care {
+  font-size: 5.5pt;
+  color: #555;
+  line-height: 1.4;
+  flex: 1;
+}
+.te-comp-label-symbols {
+  display: flex;
+  gap: 2mm;
+  margin-top: 1mm;
+  font-size: 9pt;
+  flex-wrap: wrap;
+}
+.te-comp-label-bar {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2.5px;
+  background: var(--te-orange);
+}
+
+/* ============================================================
+   SECTION DIVIDER
+   ============================================================ */
+.te-section-sep {
+  font-size: .78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .8px;
+  color: var(--te-gray3);
+  margin: 20px 0 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.te-section-sep::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--te-gray2);
+}
+
+/* ============================================================
+   TABS (within panels)
+   ============================================================ */
+.te-tabs { display: flex; gap: 0; border-bottom: 2px solid var(--te-gray2); margin-bottom: 20px; }
+.te-tab {
+  padding: 8px 16px;
+  font-size: .85rem;
+  font-weight: 600;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  color: var(--te-gray3);
+  transition: color .15s, border-color .15s;
+}
+.te-tab.active { color: var(--te-orange); border-bottom-color: var(--te-orange); }
+
+/* ============================================================
+   TOAST NOTIFICATIONS
+   ============================================================ */
+.te-toasts {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  z-index: 9999;
+}
+.te-toast {
+  padding: 12px 18px;
+  border-radius: var(--te-radius);
+  font-size: .88rem;
+  font-weight: 500;
+  color: white;
+  box-shadow: 0 4px 16px rgba(0,0,0,.18);
+  animation: te-slidein .2s ease;
+  max-width: 320px;
+}
+.te-toast.success { background: var(--te-green); }
+.te-toast.error   { background: var(--te-red); }
+.te-toast.info    { background: var(--te-dark); }
+@keyframes te-slidein {
+  from { transform: translateX(40px); opacity: 0; }
+  to   { transform: translateX(0);    opacity: 1; }
+}
+
+/* ============================================================
+   PRINT MEDIA QUERY
+   ============================================================ */
+@media print {
+  * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+  body { background: white !important; }
+  .te-header, .te-nav, .te-panel-left, .te-preview-toolbar,
+  .te-toasts, .te-actions, .te-no-print { display: none !important; }
+  .te-main { padding: 0; gap: 0; }
+  .te-panel-right { box-shadow: none; border-radius: 0; padding: 0; }
+  .te-print-sheet {
+    box-shadow: none;
+    width: 210mm;
+    margin: 0;
+    padding: 10mm;
+  }
+  .te-price-label, .te-comp-label {
+    border: 1px dashed #aaa !important;
+    -webkit-print-color-adjust: exact;
+  }
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="te-header">
+  <div class="te-header-logo">Tenis4you / TENIS TEAM s.r.o.</div>
+  <div class="te-header-sub">Editor etiket • ČOI compliance</div>
+  <nav class="te-nav">
+    <button class="te-nav-btn active" onclick="switchModule('price')" id="nav-price">
+      🏷️ Cenové štítky
+    </button>
+    <button class="te-nav-btn" onclick="switchModule('label')" id="nav-label">
+      🧵 Etikety složení
+    </button>
+    <button class="te-nav-btn" onclick="switchModule('saved')" id="nav-saved">
+      📦 Uložené produkty
+    </button>
+  </nav>
+</header>
+
+<!-- TOAST CONTAINER -->
+<div class="te-toasts" id="te-toasts"></div>
+
+<!-- ============================================================
+     MODULE A: CENOVÉ ŠTÍTKY
+     ============================================================ -->
+<div id="mod-price" class="te-module active">
+  <div class="te-main">
+    <!-- FORM -->
+    <div class="te-panel te-panel-left">
+      <div class="te-panel-title">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+        Cenový štítek
+      </div>
+
+      <div class="te-field">
+        <label class="te-label">Název produktu <span class="te-required">*</span></label>
+        <input class="te-input" id="p-name" type="text" placeholder="např. Tenisová raketa Wilson Pro" oninput="updatePricePreview()">
+      </div>
+      <div class="te-row">
+        <div class="te-field">
+          <label class="te-label">Cena (Kč) <span class="te-required">*</span></label>
+          <input class="te-input" id="p-price" type="number" min="0" step="0.01" placeholder="1 299" oninput="updatePricePreview()">
+        </div>
+        <div class="te-field">
+          <label class="te-label">SKU / Kód</label>
+          <input class="te-input" id="p-sku" type="text" placeholder="WLS-PRO-001" oninput="updatePricePreview()">
+        </div>
+      </div>
+      <div class="te-row">
+        <div class="te-field">
+          <label class="te-label">Značka</label>
+          <select class="te-select" id="p-brand" onchange="updatePricePreview()">
+            <option value="">– Vyberte –</option>
+            <option value="Wilson">Wilson</option>
+            <option value="Joma">Joma</option>
+            <option value="Babolat">Babolat</option>
+            <option value="Head">Head</option>
+            <option value="Tecnifibre">Tecnifibre</option>
+            <option value="Yonex">Yonex</option>
+            <option value="Dunlop">Dunlop</option>
+            <option value="Última">Última</option>
+            <option value="Ostatní">Ostatní</option>
+          </select>
+        </div>
+        <div class="te-field">
+          <label class="te-label">Velikost štítku</label>
+          <select class="te-select" id="p-size" onchange="updatePricePreview()">
+            <option value="sm">Malý (5×3 cm)</option>
+            <option value="md">Střední (7×4 cm)</option>
+          </select>
+        </div>
+      </div>
+      <div class="te-row">
+        <div class="te-field">
+          <label class="te-label">Počet kusů</label>
+          <input class="te-input" id="p-qty" type="number" min="1" max="200" value="1" oninput="updatePricePreview()">
+        </div>
+        <div class="te-field">
+          <label class="te-label">Štítků na arch</label>
+          <select class="te-select" id="p-perpage" onchange="updatePricePreview()">
+            <option value="4">4 na stránku</option>
+            <option value="8" selected>8 na stránku</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="te-actions">
+        <button class="te-btn te-btn-primary" onclick="printPrice()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+          Tisk
+        </button>
+        <button class="te-btn te-btn-outline" onclick="saveProduct('price')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+          Uložit
+        </button>
+        <button class="te-btn te-btn-outline" onclick="clearPriceForm()">Vymazat</button>
+      </div>
+    </div>
+
+    <!-- PREVIEW -->
+    <div class="te-panel te-panel-right">
+      <div class="te-panel-title">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+        Náhled archu
+      </div>
+      <div class="te-preview-toolbar te-no-print">
+        <label>Arch A4 – náhled</label>
+        <button class="te-btn te-btn-primary te-btn-sm" onclick="printPrice()">
+          🖨️ Tisk štítků
+        </button>
+      </div>
+      <div id="price-sheet" class="te-print-sheet"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     MODULE B: ETIKETY SLOŽENÍ
+     ============================================================ -->
+<div id="mod-label" class="te-module">
+  <div class="te-main">
+    <!-- FORM -->
+    <div class="te-panel te-panel-left" style="overflow-y:auto;max-height:calc(100vh - 80px);">
+      <div class="te-panel-title">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2V9M9 21H5a2 2 0 0 1-2-2V9m0 0h18"/></svg>
+        Etiketa složení
+      </div>
+
+      <!-- ZÁKLADNÍ INFORMACE -->
+      <div class="te-section-sep">Základní informace</div>
+      <div class="te-field">
+        <label class="te-label">Název výrobku <span class="te-required">*</span></label>
+        <input class="te-input" id="l-name" type="text" placeholder="např. Dámské šaty Joma" oninput="updateLabelPreview()">
+      </div>
+      <div class="te-row">
+        <div class="te-field">
+          <label class="te-label">SKU / Kód</label>
+          <input class="te-input" id="l-sku" type="text" placeholder="JOMA-DRESS-001" oninput="updateLabelPreview()">
+        </div>
+        <div class="te-field">
+          <label class="te-label">Značka</label>
+          <select class="te-select" id="l-brand" onchange="updateLabelPreview()">
+            <option value="">– Vyberte –</option>
+            <option value="Wilson">Wilson</option>
+            <option value="Joma" selected>Joma</option>
+            <option value="Babolat">Babolat</option>
+            <option value="Head">Head</option>
+            <option value="Tecnifibre">Tecnifibre</option>
+            <option value="Yonex">Yonex</option>
+            <option value="Dunlop">Dunlop</option>
+            <option value="Ostatní">Ostatní</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- SLOŽENÍ MATERIÁLU -->
+      <div class="te-section-sep">Složení materiálu (nař. EP č. 1007/2011)</div>
+      <div id="fiber-list" class="te-fiber-list"></div>
+      <div id="fiber-sum" class="te-fiber-sum err">Součet: 0 % (musí být 100 %)</div>
+      <button class="te-btn te-btn-outline te-btn-sm" style="margin-top:8px" onclick="addFiber()">
+        + Přidat vlákno
+      </button>
+
+      <!-- SYMBOLY ÚDRŽBY -->
+      <div class="te-section-sep">Symboly údržby (ISO 3758)</div>
+      <div class="te-care-grid" id="care-grid"></div>
+
+      <!-- POKYNY K POUŽITÍ -->
+      <div class="te-section-sep">Pokyny k použití (nepovinné)</div>
+      <div class="te-field">
+        <textarea class="te-textarea" id="l-instructions" placeholder="Volný text s pokyny k použití a péči..." oninput="updateLabelPreview()"></textarea>
+      </div>
+
+      <!-- VÝSTUP -->
+      <div class="te-section-sep">Nastavení tisku</div>
+      <div class="te-row">
+        <div class="te-field">
+          <label class="te-label">Velikost etikety</label>
+          <select class="te-select" id="l-size" onchange="updateLabelPreview()">
+            <option value="s53">5×3 cm (horizontální)</option>
+            <option value="s46">4×6 cm (vertikální)</option>
+          </select>
+        </div>
+        <div class="te-field">
+          <label class="te-label">Počet kusů</label>
+          <input class="te-input" id="l-qty" type="number" min="1" max="200" value="1" oninput="updateLabelPreview()">
+        </div>
+      </div>
+
+      <div class="te-actions">
+        <button class="te-btn te-btn-primary" onclick="printLabel()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+          Tisk
+        </button>
+        <button class="te-btn te-btn-outline" onclick="saveProduct('label')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+          Uložit
+        </button>
+        <button class="te-btn te-btn-outline" onclick="clearLabelForm()">Vymazat</button>
+      </div>
+    </div>
+
+    <!-- PREVIEW -->
+    <div class="te-panel te-panel-right">
+      <div class="te-panel-title">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+        Náhled archu
+      </div>
+      <div class="te-preview-toolbar te-no-print">
+        <label>Arch A4 – náhled (dle nař. EP č. 1007/2011)</label>
+        <button class="te-btn te-btn-primary te-btn-sm" onclick="printLabel()">
+          🖨️ Tisk etiket
+        </button>
+      </div>
+      <div id="label-sheet" class="te-print-sheet"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     MODULE: ULOŽENÉ PRODUKTY
+     ============================================================ -->
+<div id="mod-saved" class="te-module">
+  <div class="te-main" style="flex-direction:column">
+    <div class="te-panel" style="max-width:900px;width:100%">
+      <div class="te-panel-title">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+        Uložené produkty
+        <div style="margin-left:auto;display:flex;gap:8px">
+          <button class="te-btn te-btn-outline te-btn-sm" onclick="exportJSON()">
+            📤 Export JSON
+          </button>
+          <label class="te-btn te-btn-outline te-btn-sm" style="cursor:pointer">
+            📥 Import JSON
+            <input type="file" accept=".json" style="display:none" onchange="importJSON(event)">
+          </label>
+          <button class="te-btn te-btn-danger te-btn-sm" onclick="clearAllProducts()">
+            🗑️ Smazat vše
+          </button>
+        </div>
+      </div>
+      <div id="saved-list" class="te-product-list"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     PRINT FRAME (hidden, used for actual printing)
+     ============================================================ -->
+<div id="print-frame" style="display:none"></div>
+
+<script>
+/* ============================================================
+   DATA: FIBERS (dle přílohy I nař. EP č. 1007/2011)
+   ============================================================ */
+const FIBERS = [
+  'Bavlna',
+  'Polyester',
+  'Polyamid (Nylon)',
+  'Elastan',
+  'Elastodien',
+  'Viskóza',
+  'Akryl',
+  'Vlna',
+  'Kašmír',
+  'Angora',
+  'Alpaka',
+  'Mohér',
+  'Len',
+  'Ramie',
+  'Konopí',
+  'Juta',
+  'Kokos',
+  'Hedvábí',
+  'Modál',
+  'Lyocel',
+  'Acetat',
+  'Polypropylen',
+  'Polylaktid (PLA)',
+  'Aramid',
+  'Ostatní vlákna',
+];
+
+/* ============================================================
+   DATA: CARE SYMBOLS
+   ============================================================ */
+const CARE_CATEGORIES = [
+  {
+    id: 'wash',
+    title: 'Praní',
+    symbol: '⊙',
+    options: [
+      { value: 'off',  label: 'Zakázáno',       symbol: '✕', text: 'Neprat' },
+      { value: '30',   label: 'Jemně 30°C',      symbol: '⊙₃₀', text: 'Prát v ruce nebo jemně na 30 °C' },
+      { value: '40',   label: '40°C',             symbol: '⊙₄₀', text: 'Prát do 40 °C' },
+      { value: '60',   label: '60°C',             symbol: '⊙₆₀', text: 'Prát do 60 °C' },
+      { value: '95',   label: '95°C (bílý textil)',symbol: '⊙₉₅', text: 'Prát do 95 °C' },
+    ],
+  },
+  {
+    id: 'bleach',
+    title: 'Bělení',
+    symbol: '△',
+    options: [
+      { value: 'off',  label: 'Zakázáno',         symbol: '⊘△', text: 'Nebílit' },
+      { value: 'cl',   label: 'Chlorové povoleno', symbol: '△',  text: 'Chlorové bělení povoleno' },
+      { value: 'ncl',  label: 'Jen bezchlórové',   symbol: '△△', text: 'Pouze bezchlórové bělení' },
+    ],
+  },
+  {
+    id: 'dry',
+    title: 'Sušení (bubnové)',
+    symbol: '○',
+    options: [
+      { value: 'off',  label: 'Zakázáno',         symbol: '⊘○', text: 'Nesušit v bubnové sušičce' },
+      { value: 'low',  label: 'Nízká teplota',     symbol: '○·', text: 'Bubnové sušení, nízká teplota' },
+      { value: 'high', label: 'Normální teplota',  symbol: '○··',text: 'Bubnové sušení, normální teplota' },
+    ],
+  },
+  {
+    id: 'iron',
+    title: 'Žehlení',
+    symbol: '⌂',
+    options: [
+      { value: 'off',  label: 'Zakázáno',         symbol: '⊘⌂', text: 'Nežehlit' },
+      { value: 'low',  label: 'Max. 110°C',        symbol: '⌂·', text: 'Žehlit max. 110 °C (bez páry)' },
+      { value: 'med',  label: 'Max. 150°C',        symbol: '⌂··',text: 'Žehlit max. 150 °C' },
+      { value: 'high', label: 'Max. 200°C',        symbol: '⌂···',text:'Žehlit max. 200 °C' },
+    ],
+  },
+  {
+    id: 'chem',
+    title: 'Chemická čistírna',
+    symbol: '⬡',
+    options: [
+      { value: 'off',  label: 'Zakázáno',          symbol: '⊘⬡', text: 'Chemická čistírna zakázána' },
+      { value: 'p',    label: 'Perchlorethylen',    symbol: '⬡P', text: 'Chemická čistírna (P)' },
+      { value: 'f',    label: 'Uhlovodíky',         symbol: '⬡F', text: 'Chemická čistírna (F)' },
+      { value: 'w',    label: 'Mokrá čistírna',     symbol: '⬡W', text: 'Mokrá čistírna (W)' },
+    ],
+  },
+];
+
+/* ============================================================
+   STATE
+   ============================================================ */
+let fiberRows = [];
+let careSelections = {};  // id -> option value
+let savedProducts = [];
+let editingId = null;
+
+/* ============================================================
+   INIT
+   ============================================================ */
+document.addEventListener('DOMContentLoaded', () => {
+  loadFromStorage();
+  buildCareGrid();
+  initFibers([
+    { name: 'Polyester', pct: 88 },
+    { name: 'Elastan',   pct: 12 },
+  ]);
+  // Demo care
+  careSelections = { wash: '30', bleach: 'off', dry: 'off', iron: 'off', chem: 'off' };
+  updateCareGrid();
+  // Demo price form
+  document.getElementById('p-name').value  = 'Tenisová raketa Wilson Pro';
+  document.getElementById('p-price').value = '2990';
+  document.getElementById('p-sku').value   = 'WLS-PRO-001';
+  document.getElementById('p-brand').value = 'Wilson';
+  // Demo label form
+  document.getElementById('l-name').value  = 'Dámské šaty Joma';
+  document.getElementById('l-sku').value   = 'JOMA-DRESS-001';
+  document.getElementById('l-brand').value = 'Joma';
+  updatePricePreview();
+  updateLabelPreview();
+});
+
+/* ============================================================
+   MODULE SWITCHING
+   ============================================================ */
+function switchModule(mod) {
+  ['price','label','saved'].forEach(m => {
+    document.getElementById('mod-'+m).classList.remove('active');
+    document.getElementById('nav-'+m).classList.remove('active');
+  });
+  document.getElementById('mod-'+mod).classList.add('active');
+  document.getElementById('nav-'+mod).classList.add('active');
+  if (mod === 'saved') renderSavedList();
+}
+
+/* ============================================================
+   MODULE A: PRICE LABELS
+   ============================================================ */
+function getPriceData() {
+  return {
+    name:   document.getElementById('p-name').value.trim(),
+    price:  parseFloat(document.getElementById('p-price').value) || 0,
+    sku:    document.getElementById('p-sku').value.trim(),
+    brand:  document.getElementById('p-brand').value,
+    size:   document.getElementById('p-size').value,
+    qty:    parseInt(document.getElementById('p-qty').value) || 1,
+    perpage:parseInt(document.getElementById('p-perpage').value) || 8,
+  };
+}
+
+function formatPrice(v) {
+  if (!v) return '–';
+  return v.toLocaleString('cs-CZ', { minimumFractionDigits: (v % 1 ? 2 : 0), maximumFractionDigits: 2 });
+}
+
+function buildPriceLabelHTML(d) {
+  const sizeClass = d.size || 'sm';
+  return `<div class="te-price-label ${sizeClass}">
+    <div class="te-price-label-bar"></div>
+    ${d.brand ? `<div class="te-price-label-brand">${esc(d.brand)}</div>` : ''}
+    <div class="te-price-label-name">${esc(d.name) || '&nbsp;'}</div>
+    <div class="te-price-label-price">${formatPrice(d.price)} <span>Kč</span></div>
+    ${d.sku ? `<div class="te-price-label-sku">${esc(d.sku)}</div>` : ''}
+  </div>`;
+}
+
+function updatePricePreview() {
+  const d = getPriceData();
+  const sheet = document.getElementById('price-sheet');
+  const count = Math.min(d.qty, d.perpage);
+  sheet.innerHTML = Array(count).fill(buildPriceLabelHTML(d)).join('');
+}
+
+function printPrice() {
+  const d = getPriceData();
+  if (!d.name) { toast('Zadejte název produktu', 'error'); return; }
+  if (!d.price) { toast('Zadejte cenu', 'error'); return; }
+  const labels = Array(d.qty).fill(buildPriceLabelHTML(d)).join('');
+  printSheet(labels, 'Cenové štítky – ' + d.name);
+}
+
+function clearPriceForm() {
+  ['p-name','p-price','p-sku'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('p-brand').value = '';
+  document.getElementById('p-qty').value = '1';
+  editingId = null;
+  updatePricePreview();
+}
+
+/* ============================================================
+   MODULE B: FIBER MANAGEMENT
+   ============================================================ */
+function fiberOptionsHTML(selected) {
+  return FIBERS.map(f =>
+    `<option value="${esc(f)}" ${f === selected ? 'selected' : ''}>${esc(f)}</option>`
+  ).join('');
+}
+
+function addFiber(name = '', pct = 0) {
+  const id = 'fiber_' + Date.now() + '_' + Math.random().toString(36).slice(2,6);
+  fiberRows.push({ id, name, pct });
+  renderFibers();
+  updateLabelPreview();
+}
+
+function removeFiber(id) {
+  fiberRows = fiberRows.filter(r => r.id !== id);
+  renderFibers();
+  updateLabelPreview();
+}
+
+function updateFiber(id, field, value) {
+  const row = fiberRows.find(r => r.id === id);
+  if (row) {
+    row[field] = field === 'pct' ? (parseFloat(value) || 0) : value;
+    updateFiberSum();
+    updateLabelPreview();
+  }
+}
+
+function renderFibers() {
+  const container = document.getElementById('fiber-list');
+  container.innerHTML = fiberRows.map(row => `
+    <div class="te-fiber-row" id="frow_${row.id}">
+      <select class="te-select" onchange="updateFiber('${row.id}','name',this.value)">
+        ${fiberOptionsHTML(row.name)}
+      </select>
+      <input class="te-input" type="number" min="0" max="100" step="1"
+        value="${row.pct}"
+        onchange="updateFiber('${row.id}','pct',this.value)"
+        oninput="updateFiber('${row.id}','pct',this.value)">
+      <span class="te-fiber-pct-lbl">%</span>
+      <button class="te-btn-icon danger" onclick="removeFiber('${row.id}')" title="Odebrat">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+  `).join('');
+  updateFiberSum();
+}
+
+function updateFiberSum() {
+  const total = fiberRows.reduce((s, r) => s + r.pct, 0);
+  const el = document.getElementById('fiber-sum');
+  const ok = Math.round(total * 10) === 1000;
+  el.className = 'te-fiber-sum ' + (ok ? 'ok' : 'err');
+  el.textContent = `Součet: ${total.toFixed(1)} %${ok ? ' ✓' : ' (musí být 100 %)'}`;
+}
+
+function getFiberSum() {
+  return fiberRows.reduce((s, r) => s + r.pct, 0);
+}
+
+function initFibers(list) {
+  fiberRows = [];
+  list.forEach(f => fiberRows.push({ id: 'fiber_' + Date.now() + '_' + Math.random().toString(36).slice(2,6), name: f.name, pct: f.pct }));
+  renderFibers();
+}
+
+/* ============================================================
+   MODULE B: CARE SYMBOLS
+   ============================================================ */
+function buildCareGrid() {
+  const grid = document.getElementById('care-grid');
+  grid.innerHTML = CARE_CATEGORIES.map(cat => `
+    <div class="te-care-item ${careSelections[cat.id] ? 'selected' : ''}"
+         id="care_${cat.id}"
+         onclick="toggleCare('${cat.id}')">
+      <div class="te-care-item-header">
+        <span class="te-care-item-title">${esc(cat.title)}</span>
+        <div class="te-care-toggle"></div>
+      </div>
+      <select class="te-select te-care-select"
+              id="care_sel_${cat.id}"
+              onclick="event.stopPropagation()"
+              onchange="selectCare('${cat.id}', this.value)">
+        ${cat.options.map(o =>
+          `<option value="${o.value}" ${careSelections[cat.id] === o.value ? 'selected' : ''}>${o.label}</option>`
+        ).join('')}
+      </select>
+    </div>
+  `).join('');
+}
+
+function updateCareGrid() {
+  CARE_CATEGORIES.forEach(cat => {
+    const item = document.getElementById('care_'+cat.id);
+    if (!item) return;
+    const sel = careSelections[cat.id];
+    item.classList.toggle('selected', !!sel);
+    const selectEl = document.getElementById('care_sel_'+cat.id);
+    if (sel && selectEl) selectEl.value = sel;
+  });
+  updateLabelPreview();
+}
+
+function toggleCare(id) {
+  if (careSelections[id]) {
+    delete careSelections[id];
+  } else {
+    const cat = CARE_CATEGORIES.find(c => c.id === id);
+    careSelections[id] = cat.options[0].value;
+  }
+  updateCareGrid();
+}
+
+function selectCare(id, value) {
+  careSelections[id] = value;
+  const item = document.getElementById('care_'+id);
+  if (item) item.classList.add('selected');
+  updateLabelPreview();
+}
+
+function getCareText() {
+  return CARE_CATEGORIES
+    .filter(cat => careSelections[cat.id])
+    .map(cat => {
+      const opt = cat.options.find(o => o.value === careSelections[cat.id]);
+      return opt ? opt.text : '';
+    })
+    .filter(Boolean);
+}
+
+function getCareSymbols() {
+  return CARE_CATEGORIES
+    .filter(cat => careSelections[cat.id])
+    .map(cat => {
+      const opt = cat.options.find(o => o.value === careSelections[cat.id]);
+      return opt ? opt.symbol : '';
+    })
+    .filter(Boolean);
+}
+
+/* ============================================================
+   MODULE B: LABEL PREVIEW
+   ============================================================ */
+function getLabelData() {
+  return {
+    name:    document.getElementById('l-name').value.trim(),
+    sku:     document.getElementById('l-sku').value.trim(),
+    brand:   document.getElementById('l-brand').value,
+    fibers:  fiberRows.filter(r => r.pct > 0),
+    care:    { ...careSelections },
+    instructions: document.getElementById('l-instructions').value.trim(),
+    size:    document.getElementById('l-size').value,
+    qty:     parseInt(document.getElementById('l-qty').value) || 1,
+  };
+}
+
+function compositionText(fibers) {
+  return fibers
+    .sort((a, b) => b.pct - a.pct)
+    .map(f => `${f.pct}% ${f.name}`)
+    .join(', ');
+}
+
+function buildCompLabelHTML(d) {
+  const sc = d.size || 's53';
+  const compText = compositionText(d.fibers);
+  const careLines = getCareTextFromData(d.care);
+  const careSyms  = getCareSymbolsFromData(d.care);
+  const isVertical = sc === 's46';
+
+  return `<div class="te-comp-label ${sc}">
+    <div class="te-comp-label-bar"></div>
+    ${d.brand ? `<div class="te-comp-label-brand">${esc(d.brand)}</div>` : ''}
+    <div class="te-comp-label-name">${esc(d.name) || '&nbsp;'}</div>
+    ${d.sku ? `<div class="te-comp-label-sku">SKU: ${esc(d.sku)}</div>` : ''}
+    <div class="te-comp-label-divider"></div>
+    <div class="te-comp-label-composition">SLOŽENÍ: ${esc(compText) || '–'}</div>
+    <div class="te-comp-label-care">${careLines.map(l => esc(l)).join('<br>')}</div>
+    ${careSyms.length ? `<div class="te-comp-label-symbols">${careSyms.map(s => `<span>${esc(s)}</span>`).join('')}</div>` : ''}
+  </div>`;
+}
+
+function getCareTextFromData(care) {
+  return CARE_CATEGORIES
+    .filter(cat => care[cat.id])
+    .map(cat => {
+      const opt = cat.options.find(o => o.value === care[cat.id]);
+      return opt ? opt.text : '';
+    })
+    .filter(Boolean);
+}
+
+function getCareSymbolsFromData(care) {
+  return CARE_CATEGORIES
+    .filter(cat => care[cat.id])
+    .map(cat => {
+      const opt = cat.options.find(o => o.value === care[cat.id]);
+      return opt ? opt.symbol : '';
+    })
+    .filter(Boolean);
+}
+
+function updateLabelPreview() {
+  const d = getLabelData();
+  const sheet = document.getElementById('label-sheet');
+  const count = Math.min(d.qty, 40);
+  sheet.innerHTML = Array(count).fill(buildCompLabelHTML(d)).join('');
+}
+
+function printLabel() {
+  const d = getLabelData();
+  if (!d.name) { toast('Zadejte název výrobku', 'error'); return; }
+  if (d.fibers.length === 0) { toast('Přidejte alespoň jedno vlákno', 'error'); return; }
+  const total = Math.round(getFiberSum() * 10);
+  if (total !== 1000) { toast(`Součet vláken musí být 100 % (nyní ${getFiberSum().toFixed(1)} %)`, 'error'); return; }
+  const labels = Array(d.qty).fill(buildCompLabelHTML(d)).join('');
+  printSheet(labels, 'Etikety složení – ' + d.name);
+}
+
+function clearLabelForm() {
+  document.getElementById('l-name').value = '';
+  document.getElementById('l-sku').value = '';
+  document.getElementById('l-brand').value = '';
+  document.getElementById('l-instructions').value = '';
+  fiberRows = [];
+  careSelections = {};
+  editingId = null;
+  renderFibers();
+  updateCareGrid();
+  updateLabelPreview();
+}
+
+/* ============================================================
+   PRINT ENGINE
+   ============================================================ */
+function printSheet(labelsHTML, title) {
+  const frame = document.getElementById('print-frame');
+  const style = document.querySelector('style').textContent;
+  frame.innerHTML = `
+    <html><head><meta charset="UTF-8"><title>${esc(title)}</title>
+    <style>${style}</style></head>
+    <body>
+      <div class="te-print-sheet" style="box-shadow:none;margin:0;padding:10mm">
+        ${labelsHTML}
+      </div>
+    </body></html>
+  `;
+  const blob = new Blob([frame.innerHTML], { type: 'text/html' });
+  const url  = URL.createObjectURL(blob);
+  const win  = window.open(url, '_blank');
+  if (win) {
+    win.addEventListener('load', () => {
+      setTimeout(() => { win.print(); URL.revokeObjectURL(url); }, 400);
+    });
+  } else {
+    toast('Povolte vyskakovací okna v prohlížeči', 'error');
+    URL.revokeObjectURL(url);
+  }
+}
+
+/* ============================================================
+   PRODUCT STORAGE (localStorage)
+   ============================================================ */
+const STORAGE_KEY = 'te_products_v1';
+
+function loadFromStorage() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    savedProducts = raw ? JSON.parse(raw) : [];
+  } catch(e) {
+    savedProducts = [];
+  }
+}
+
+function saveToStorage() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(savedProducts));
+}
+
+function saveProduct(type) {
+  if (type === 'price') {
+    const d = getPriceData();
+    if (!d.name) { toast('Zadejte název produktu', 'error'); return; }
+    const product = { id: editingId || uid(), type: 'price', ...d, savedAt: new Date().toISOString() };
+    upsertProduct(product);
+    toast('Cenový štítek uložen', 'success');
+  } else {
+    const d = getLabelData();
+    if (!d.name) { toast('Zadejte název výrobku', 'error'); return; }
+    const product = { id: editingId || uid(), type: 'label', ...d, savedAt: new Date().toISOString() };
+    upsertProduct(product);
+    toast('Etiketa složení uložena', 'success');
+  }
+  editingId = null;
+}
+
+function upsertProduct(p) {
+  const idx = savedProducts.findIndex(x => x.id === p.id);
+  if (idx >= 0) savedProducts[idx] = p;
+  else savedProducts.unshift(p);
+  saveToStorage();
+}
+
+function deleteProduct(id) {
+  if (!confirm('Smazat tento produkt?')) return;
+  savedProducts = savedProducts.filter(p => p.id !== id);
+  saveToStorage();
+  renderSavedList();
+  toast('Produkt smazán', 'info');
+}
+
+function duplicateProduct(id) {
+  const p = savedProducts.find(x => x.id === id);
+  if (!p) return;
+  const copy = { ...p, id: uid(), savedAt: new Date().toISOString() };
+  savedProducts.unshift(copy);
+  saveToStorage();
+  renderSavedList();
+  toast('Produkt duplikován', 'success');
+}
+
+function loadProduct(id) {
+  const p = savedProducts.find(x => x.id === id);
+  if (!p) return;
+  editingId = p.id;
+  if (p.type === 'price') {
+    document.getElementById('p-name').value  = p.name || '';
+    document.getElementById('p-price').value = p.price || '';
+    document.getElementById('p-sku').value   = p.sku || '';
+    document.getElementById('p-brand').value = p.brand || '';
+    document.getElementById('p-size').value  = p.size || 'sm';
+    document.getElementById('p-qty').value   = p.qty || 1;
+    updatePricePreview();
+    switchModule('price');
+    toast('Cenový štítek načten', 'info');
+  } else {
+    document.getElementById('l-name').value  = p.name || '';
+    document.getElementById('l-sku').value   = p.sku || '';
+    document.getElementById('l-brand').value = p.brand || '';
+    document.getElementById('l-instructions').value = p.instructions || '';
+    document.getElementById('l-size').value  = p.size || 's53';
+    document.getElementById('l-qty').value   = p.qty || 1;
+    initFibers(p.fibers || []);
+    careSelections = { ...(p.care || {}) };
+    updateCareGrid();
+    updateLabelPreview();
+    switchModule('label');
+    toast('Etiketa složení načtena', 'info');
+  }
+}
+
+function clearAllProducts() {
+  if (!confirm('Smazat VŠECHNY uložené produkty? Tato akce je nevratná.')) return;
+  savedProducts = [];
+  saveToStorage();
+  renderSavedList();
+  toast('Všechny produkty smazány', 'info');
+}
+
+function renderSavedList() {
+  const container = document.getElementById('saved-list');
+  if (savedProducts.length === 0) {
+    container.innerHTML = `<div class="te-empty-state">
+      <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+      <br>Žádné uložené produkty
+    </div>`;
+    return;
+  }
+  container.innerHTML = savedProducts.map(p => `
+    <div class="te-product-item">
+      <div class="te-product-info">
+        <div class="te-product-name">${esc(p.name)}</div>
+        <div class="te-product-meta">
+          ${p.brand ? esc(p.brand) + ' · ' : ''}
+          ${p.sku ? 'SKU: ' + esc(p.sku) + ' · ' : ''}
+          ${new Date(p.savedAt).toLocaleDateString('cs-CZ')}
+        </div>
+      </div>
+      <span class="te-product-type ${p.type}">${p.type === 'price' ? 'Cena' : 'Složení'}</span>
+      <div class="te-product-actions">
+        <button class="te-btn-icon" onclick="loadProduct('${p.id}')" title="Načíst a upravit">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        </button>
+        <button class="te-btn-icon" onclick="duplicateProduct('${p.id}')" title="Duplikovat">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        </button>
+        <button class="te-btn-icon danger" onclick="deleteProduct('${p.id}')" title="Smazat">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+        </button>
+      </div>
+    </div>
+  `).join('');
+}
+
+/* ============================================================
+   JSON EXPORT / IMPORT
+   ============================================================ */
+function exportJSON() {
+  const data = JSON.stringify(savedProducts, null, 2);
+  const blob = new Blob([data], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `etikety-backup-${new Date().toISOString().slice(0,10)}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+  toast(`Exportováno ${savedProducts.length} produktů`, 'success');
+}
+
+function importJSON(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const data = JSON.parse(e.target.result);
+      if (!Array.isArray(data)) throw new Error('Neplatný formát');
+      const count = data.length;
+      data.forEach(p => upsertProduct(p));
+      renderSavedList();
+      toast(`Importováno ${count} produktů`, 'success');
+    } catch (err) {
+      toast('Chyba při importu: ' + err.message, 'error');
+    }
+  };
+  reader.readAsText(file);
+  event.target.value = '';
+}
+
+/* ============================================================
+   UTILITIES
+   ============================================================ */
+function esc(str) {
+  if (str == null) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+function uid() {
+  return Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+}
+
+function toast(msg, type = 'info') {
+  const container = document.getElementById('te-toasts');
+  const el = document.createElement('div');
+  el.className = `te-toast ${type}`;
+  el.textContent = msg;
+  container.appendChild(el);
+  setTimeout(() => el.remove(), 3500);
+}
+</script>
+</body>
+</html>
